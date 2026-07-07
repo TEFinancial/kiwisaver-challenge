@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KiwiSaver Challenge</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="card">
+        <p class="eyebrow">Interactive challenge</p>
+        <h1>KiwiSaver Challenge</h1>
+        <p class="subtitle">
+          Choose an anonymous aggressive fund each year and see how your balance grows.
+        </p>
+
+        <div class="intro-grid">
+          <div class="intro-pill">Starting balance: <strong>NZ$100,000</strong></div>
+          <div class="intro-pill">Contributions: <strong>No contributions</strong></div>
+        </div>
+
+        <div class="status-grid">
+          <div class="status-card">
+            <span class="status-label">Year</span>
+            <strong id="yearLabel">2017</strong>
+          </div>
+          <div class="status-card">
+            <span class="status-label">Current fund</span>
+            <strong id="currentFundLabel">Not selected</strong>
+          </div>
+          <div class="status-card">
+            <span class="status-label">Balance</span>
+            <strong id="balanceLabel">NZ$100,000.00</strong>
+          </div>
+        </div>
+
+        <section class="panel">
+          <h2>Historical returns available so far</h2>
+          <div id="returnsTable" class="table-wrap"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Choose your fund for this year</h2>
+          <div id="fundButtons" class="button-grid"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Why did you choose this fund?</h2>
+          <div id="reasonButtons" class="button-grid"></div>
+        </section>
+
+        <button id="continueButton" class="primary-button">Continue</button>
+
+        <section id="summaryPanel" class="panel hidden"></section>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

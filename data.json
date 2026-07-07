@@ -1,0 +1,56 @@
+{
+"funds": [
+  { "name": "Alpha", "provider": "Booster Asset Class Growth" },
+  { "name": "Beta", "provider": "Milford Active Growth" },
+  { "name": "Gamma", "provider": "Kernel High Growth" },
+  { "name": "Delta", "provider": "Generate Growth" },
+  { "name": "Epsilon", "provider": "Fisher Funds Growth" },
+  { "name": "Zeta", "provider": "ANZ Growth" },
+  { "name": "Eta", "provider": "Pathfinder Growth" },
+  { "name": "Theta", "provider": "ASB Growth" },
+  { "name": "Iota", "provider": "Booster Geared Growth" },
+  { "name": "Kappa", "provider": "Mercer Responsible Growth" }
+],
+"years": [
+  {
+    "year": 2016,
+    "returns": [9.29, 6.21, 7.01, 1.97, 6.19, 5.43, 7.01, 9.02, 9.44, 8.98]
+  },
+  {
+    "year": 2017,
+    "returns": [16.95, 15.58, 18.74, 19.13, 16.09, 16.73, 18.74, 16.36, 22.45, 14.52]
+  },
+  {
+    "year": 2018,
+    "returns": [-6.92, 1.62, -2.22, 0.80, 0.32, -4.42, -2.22, -2.14, -5.89, -1.75]
+  },
+  {
+    "year": 2019,
+    "returns": [19.57, 20.26, 23.72, 24.09, 21.61, 23.52, 23.72, 21.29, 32.81, 17.72]
+  },
+  {
+    "year": 2020,
+    "returns": [3.24, 10.69, 7.69, 8.13, 12.84, 9.11, 22.40, 6.46, 13.78, 8.06]
+  },
+  {
+    "year": 2021,
+    "returns": [17.51, 18.49, 17.24, 8.90, 12.39, 15.59, 16.56, 11.72, 20.29, 14.77]
+  },
+  {
+    "year": 2022,
+    "returns": [-13.01, -7.91, -4.40, -12.31, -15.87, -14.61, -13.66, -12.27, -20.00, -12.97]
+  },
+  {
+    "year": 2023,
+    "returns": [14.36, 13.69, 19.58, 15.46, 15.85, 12.66, 13.15, 13.64, 18.44, 11.51]
+  },
+  {
+    "year": 2024,
+    "returns": [18.33, 13.84, 23.52, 19.88, 15.57, 9.81, 15.78, 17.83, 21.41, 14.34]
+  },
+  {
+    "year": 2025,
+    "returns": [14.19, 12.51, 15.20, 8.20, 5.20, 11.23, 7.77, 12.80, 12.39, 10.02]
+  }
+]
+}
