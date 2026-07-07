@@ -7,13 +7,29 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <header class="site-header">
+      <div class="brand-identity">
+        <div class="brand-logo" aria-hidden="true">
+          <svg class="fox-logo" viewBox="0 0 64 64" role="img" aria-label="FoxPlan logo">
+            <path fill="#8f5b28" d="M32 4 10 26 18 60 32 46 46 60 54 26Z"/>
+            <path fill="#f4c37d" d="M22 26 32 12 42 26 32 40Z"/>
+            <path fill="#fff4de" d="M28 33 32 21 36 33 32 37Z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-name">FoxPlan</div>
+          <div class="brand-tagline">KiwiSaver decision support for advisors and clients</div>
+        </div>
+      </div>
+    </header>
+
     <main class="app-shell">
       <section class="card">
-        <p class="eyebrow">Interactive challenge</p>
-        <h1>KiwiSaver Challenge</h1>
-        <p class="subtitle">
-          Choose an anonymous aggressive fund each year and see how your balance grows.
-        </p>
+        <div class="card-header">
+          <p class="eyebrow">Interactive challenge</p>
+          <h1>KiwiSaver Challenge</h1>
+          <p class="subtitle">Can you beat the professionals?</p>
+        </div>
 
         <div class="intro-grid">
           <div class="intro-pill">Starting balance: <strong>NZ$100,000</strong></div>
@@ -55,6 +71,19 @@
         <section id="summaryPanel" class="panel hidden"></section>
       </section>
     </main>
+
+    <div id="yearTransitionOverlay" class="transition-overlay hidden" aria-live="polite">
+      <div class="transition-panel">
+        <div class="transition-heading">Year transition</div>
+        <div class="transition-year">
+          <span id="transitionFromYear">Year 2021</span>
+          <span class="transition-arrow">→</span>
+          <span id="transitionToYear">Year 2022</span>
+        </div>
+        <p class="transition-message">Watching your investment grow...</p>
+        <p id="transitionBalance" class="transition-balance">NZ$100,000.00</p>
+      </div>
+    </div>
 
     <script src="script.js"></script>
   </body>
