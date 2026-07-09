@@ -14,10 +14,14 @@ const state = {
   selectedFundIndex: null,
   selectedReasonIndex: null,
   decisions: [],
-  complete: false
+  complete: false,
+  sessionRecorded: false
 };
 
 const elements = {
+  landingPage: document.getElementById("landingPage"),
+  startButton: document.getElementById("startButton"),
+  appShell: document.querySelector(".app-shell"),
   yearLabel: document.getElementById("yearLabel"),
   currentFundLabel: document.getElementById("currentFundLabel"),
   balanceLabel: document.getElementById("balanceLabel"),
@@ -39,6 +43,146 @@ function formatCurrency(value) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   }).format(value);
+}
+
+const sessionStorageAdapter = {
+  storageKey: "kiwisaverChallengeSessions",
+
+  loadSessions() {
+    try {
+      const raw = localStorage.getItem(this.storageKey);
+      return raw ? JSON.parse(raw) : [];
+    } catch (error) {
+      console.warn("Unable to load session storage.", error);
+      return [];
+    }
+  },
+
+  saveSessions(sessions) {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(sessions));
+    } catch (error) {
+      console.warn("Unable to save session storage.", error);
+    }
+  },
+
+  addSession(session) {
+    const sessions = this.loadSessions();
+    sessions.push(session);
+    this.saveSessions(sessions);
+    return sessions;
+  }
+};
+
+function createSessionId() {
+  if (window.crypto && typeof window.crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return `session_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function buildSessionRecord() {
+  const finalBalance = state.balance;
+  const switchCount = state.decisions.filter((decision) => decision.action === "Switched funds").length;
+  const mostFrequentFund = getMostFrequentSelection(state.decisions, (decision) => state.data.funds[decision.fundIndex].provider);
+  const mostCommonReason = getMostFrequentSelection(state.decisions, (decision) => decision.reason);
+
+  return {
+    sessionId: createSessionId(),
+    completedAt: new Date().toISOString(),
+    finalBalance: Number(finalBalance.toFixed(2)),
+    switchCount,
+    mostFrequentlySelectedFund: mostFrequentFund.key,
+    mostCommonReason: mostCommonReason.key,
+    decisionHistory: state.decisions.map((decision) => ({
+      year: decision.year,
+      selectedFund: state.data.funds[decision.fundIndex].provider,
+      reason: decision.reason,
+      annualReturn: decision.annualReturn,
+      openingBalance: decision.openingBalance,
+      closingBalance: decision.closingBalance
+    }))
+  };
+}
+
+function recordCompletedSession() {
+  if (state.sessionRecorded) {
+    return;
+  }
+
+  const record = buildSessionRecord();
+  sessionStorageAdapter.addSession(record);
+  state.sessionRecorded = true;
+}
+
+function getStoredSessions() {
+  return sessionStorageAdapter.loadSessions();
+}
+
+function calculateAverage(values) {
+  if (!values.length) return 0;
+  return values.reduce((total, value) => total + value, 0) / values.length;
+}
+
+function countBy(items, selector) {
+  const counts = new Map();
+
+  items.forEach((item) => {
+    const key = selector(item);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+
+  return counts;
+}
+
+function getMostCommonValue(items, selector) {
+  const counts = countBy(items, selector);
+  let mostCommon = null;
+  let highestCount = 0;
+
+  counts.forEach((count, key) => {
+    if (count > highestCount) {
+      highestCount = count;
+      mostCommon = key;
+    }
+  });
+
+  return { key: mostCommon, count: highestCount };
+}
+
+function getSessionStatistics() {
+  const sessions = getStoredSessions();
+  const totalSessions = sessions.length;
+
+  if (totalSessions === 0) {
+    return {
+      totalSessions: 0,
+      averageFinalBalance: 0,
+      highestFinalBalance: 0,
+      lowestFinalBalance: 0,
+      averageSwitchCount: 0,
+      mostCommonFund: null,
+      mostCommonReason: null
+    };
+  }
+
+  const finalBalances = sessions.map((session) => session.finalBalance);
+  const switchCounts = sessions.map((session) => session.switchCount);
+  const mostCommonFund = getMostCommonValue(sessions, (session) => session.mostFrequentlySelectedFund);
+  const mostCommonReason = getMostCommonValue(sessions, (session) => session.mostCommonReason);
+
+  return {
+    totalSessions,
+    averageFinalBalance: calculateAverage(finalBalances),
+    highestFinalBalance: Math.max(...finalBalances),
+    lowestFinalBalance: Math.min(...finalBalances),
+    averageSwitchCount: calculateAverage(switchCounts),
+    mostCommonFund: mostCommonFund.key,
+    mostCommonFundCount: mostCommonFund.count,
+    mostCommonReason: mostCommonReason.key,
+    mostCommonReasonCount: mostCommonReason.count
+  };
 }
 
 function validateGameData(rawData) {
@@ -389,6 +533,138 @@ function getPerformanceTakeaway(performance) {
   return `Your result trailed most buy-and-hold strategies, suggesting a more patient, long-term approach may have improved outcomes.`;
 }
 
+function calculateInvestorDisciplineScore(actualBalance, switchCount, buyHoldResults, bestBalance) {
+  const averageBuyHold = calculateAverage(buyHoldResults.map((result) => result.balance));
+  const switchScore = switchCount <= 2 ? 20 : switchCount <= 4 ? 14 : switchCount <= 6 ? 8 : 2;
+  const outcomeScore = bestBalance > 0 ? Math.round(Math.min(40, (actualBalance / bestBalance) * 40)) : 20;
+  const buyHoldScore = averageBuyHold > 0 ? Math.round(Math.min(25, (actualBalance / averageBuyHold) * 25)) : 20;
+  const score = Math.min(100, Math.max(15, switchScore + outcomeScore + buyHoldScore + 10));
+
+  const explanationParts = [
+    `This score reflects your decision discipline across ${state.decisions.length} years and ${switchCount} fund switch${switchCount === 1 ? "" : "es"}.`,
+    switchCount <= 4 ? "Moderate switching supports a disciplined long-term approach." : "More consistency could strengthen your score.",
+    actualBalance >= averageBuyHold
+      ? "Your result outperformed the average buy-and-hold strategy."
+      : "Your result is below the average buy-and-hold strategy."
+  ];
+
+  return {
+    score,
+    explanation: explanationParts.join(" ")
+  };
+}
+
+function getParticipantRanking(finalBalance) {
+  const sessions = getStoredSessions();
+  if (sessions.length <= 1) {
+    return null;
+  }
+
+  const total = sessions.length;
+  const lowerCount = sessions.filter((session) => session.finalBalance < finalBalance).length;
+  const percentile = Math.round((lowerCount / total) * 100);
+
+  if (percentile === 100) {
+    return "You outperformed 100% of participants.";
+  }
+
+  if (percentile >= 85) {
+    return `Top ${100 - percentile}% of participants.`;
+  }
+
+  return `You outperformed ${percentile}% of participants.`;
+}
+
+function generateLinkedInShareText(details) {
+  const rankingLine = details.participantRanking ? `Participant ranking: ${details.participantRanking}\n\n` : "";
+  return `I just completed the FoxPlan KiwiSaver Challenge.\n\nStarting with ${details.startingBalance}, I attempted to choose between ten anonymous KiwiSaver growth funds using only the information that would have been available at the time.\n\nMy final portfolio value was:\n\n${details.finalBalance}\n\nI switched funds ${details.switchCount} times.\n\nMost frequently selected fund: ${details.mostFrequentFund}.\nMost common decision reason: ${details.mostCommonReason}.\n\nMy Investor Discipline Score was ${details.disciplineScore} / 100.\n\n${rankingLine}Can you beat my result?\n\nTake the challenge:\n\n${details.challengeUrl}\n\n#KiwiSaver #Investing #BehaviouralFinance #FoxPlan`;
+}
+
+function copyTextToClipboard(text) {
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+    return navigator.clipboard.writeText(text).then(() => true).catch(() => false);
+  }
+
+  return new Promise((resolve) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+      const successful = document.execCommand("copy");
+      resolve(successful);
+    } catch (error) {
+      resolve(false);
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  });
+}
+
+function renderShareNotice(message, isError = false) {
+  const notice = elements.summaryPanel.querySelector("#shareNotice");
+  if (!notice) {
+    alert(message);
+    return;
+  }
+
+  notice.textContent = message;
+  notice.classList.remove("hidden", "error");
+  if (isError) {
+    notice.classList.add("error");
+  }
+
+  if (notice.dataset.timeoutId) {
+    window.clearTimeout(notice.dataset.timeoutId);
+  }
+
+  const timeoutId = window.setTimeout(() => {
+    notice.classList.add("hidden");
+  }, 4500);
+
+  notice.dataset.timeoutId = timeoutId;
+}
+
+function handleLinkedInShare() {
+  const finalBalance = state.balance;
+  const switchCount = state.decisions.filter((decision) => decision.action === "Switched funds").length;
+  const mostFrequentFund = getMostFrequentSelection(state.decisions, (decision) => state.data.funds[decision.fundIndex].provider).key;
+  const mostCommonReason = getMostFrequentSelection(state.decisions, (decision) => decision.reason).key;
+  const buyHoldResults = getBuyAndHoldResults();
+  const bestBalance = calculateBestPossibleOutcome();
+  const discipline = calculateInvestorDisciplineScore(finalBalance, switchCount, buyHoldResults, bestBalance);
+  const participantRanking = getParticipantRanking(finalBalance);
+
+  const summaryText = generateLinkedInShareText({
+    startingBalance: formatCurrency(100000),
+    finalBalance: formatCurrency(finalBalance),
+    switchCount,
+    mostFrequentFund,
+    mostCommonReason,
+    disciplineScore: discipline.score,
+    participantRanking,
+    challengeUrl: `${window.location.origin}${window.location.pathname}`
+  });
+
+  const linkedInTab = window.open("https://www.linkedin.com/feed/", "_blank");
+
+  copyTextToClipboard(summaryText).then((copied) => {
+    if (copied) {
+      renderShareNotice("Your challenge summary has been copied to your clipboard.");
+    } else {
+      renderShareNotice("The summary could not be copied automatically. Please paste it manually into LinkedIn.", true);
+    }
+
+    if (!linkedInTab || linkedInTab.closed) {
+      renderShareNotice("LinkedIn could not be opened automatically. Please open LinkedIn and paste your summary manually.", true);
+    }
+  });
+}
+
 function renderSummary() {
   if (!state.complete) {
     elements.summaryPanel.classList.add("hidden");
@@ -409,6 +685,9 @@ function renderSummary() {
   const performance = getPerformanceRating(finalBalance, bestBalance, buyHoldResults);
   const performanceTakeaway = getPerformanceTakeaway(performance);
   const insights = getParticipantInvestmentInsights();
+  const switchCount = state.decisions.filter((decision) => decision.action === "Switched funds").length;
+  const discipline = calculateInvestorDisciplineScore(finalBalance, switchCount, buyHoldResults, bestBalance);
+  const participantRankingText = getParticipantRanking(finalBalance);
 
   elements.summaryPanel.classList.remove("hidden");
   elements.summaryPanel.innerHTML = `
@@ -508,8 +787,38 @@ function renderSummary() {
           ${insights.map((insight) => `<li>${insight}</li>`).join("")}
         </ul>
       </div>
+
+      <div class="summary-section share-section">
+        <div class="share-top">
+          <div>
+            <div class="section-heading">Challenge Your Network</div>
+            <p class="share-subtitle">Think your friends or colleagues can do better? Challenge them to beat your result.</p>
+          </div>
+
+          <div class="share-card">
+            <div class="share-badge">
+              <span>Investor Discipline Score</span>
+              <strong>${discipline.score} / 100</strong>
+            </div>
+            <p class="share-note">${discipline.explanation}</p>
+            ${participantRankingText ? `<div class="participant-ranking">${participantRankingText}</div>` : ""}
+          </div>
+        </div>
+
+        <button id="linkedinShareButton" class="share-button" type="button">
+          <span class="linkedin-icon" aria-hidden="true">in</span>
+          Challenge your network on LinkedIn
+        </button>
+
+        <div id="shareNotice" class="share-notice hidden" role="status" aria-live="polite"></div>
+      </div>
     </div>
   `;
+
+  const linkedinButton = elements.summaryPanel.querySelector("#linkedinShareButton");
+  if (linkedinButton) {
+    linkedinButton.addEventListener("click", handleLinkedInShare);
+  }
 }
 
 function generateBalanceSteps(openingBalance, closingBalance) {
@@ -542,6 +851,8 @@ function showYearTransition(fromYear, toYear, openingBalance, closingBalance, an
   elements.transitionToYear.textContent = toYear === null ? "Complete" : `Year ${toYear}`;
   elements.transitionBalance.classList.remove("upward", "downward");
   elements.transitionBalance.classList.add(isPositive ? "upward" : "downward");
+  elements.yearTransitionOverlay.classList.remove("positive-year", "negative-year");
+  elements.yearTransitionOverlay.classList.add(isPositive ? "positive-year" : "negative-year");
   setTransitionBalanceText(openingBalance);
 
   elements.yearTransitionOverlay.classList.remove("hidden");
@@ -563,6 +874,7 @@ function showYearTransition(fromYear, toYear, openingBalance, closingBalance, an
         elements.yearTransitionOverlay.classList.remove("visible");
         elements.yearTransitionOverlay.addEventListener("transitionend", function handleHide() {
           elements.yearTransitionOverlay.classList.add("hidden");
+          elements.yearTransitionOverlay.classList.remove("positive-year", "negative-year");
           elements.yearTransitionOverlay.removeEventListener("transitionend", handleHide);
           callback();
         }, { once: true });
@@ -642,6 +954,7 @@ function advanceChallenge() {
 
       if (state.currentYearIndex >= state.data.years.length) {
         state.complete = true;
+        recordCompletedSession();
       } else {
         state.selectedFundIndex = state.decisions[state.decisions.length - 1].fundIndex;
       }
@@ -654,5 +967,10 @@ function advanceChallenge() {
 elements.fundButtons.addEventListener("click", handleFundSelection);
 elements.reasonButtons.addEventListener("click", handleReasonSelection);
 elements.continueButton.addEventListener("click", advanceChallenge);
+elements.startButton.addEventListener("click", () => {
+  elements.landingPage.classList.add("hidden");
+  elements.appShell.classList.remove("hidden");
+  render();
+});
 
 init();

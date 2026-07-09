@@ -319,6 +319,123 @@ h1 {
   font-size: 0.95rem;
 }
 
+.share-section {
+  display: grid;
+  gap: 18px;
+  padding: 26px 0 0;
+  border-top: 1px solid rgba(141, 101, 64, 0.12);
+}
+
+.share-top {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1fr minmax(260px, 420px);
+  align-items: start;
+}
+
+.share-subtitle {
+  margin: 8px 0 0;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.65;
+}
+
+.share-card {
+  background: #fff;
+  border: 1px solid rgba(143, 101, 64, 0.14);
+  border-radius: 24px;
+  padding: 20px 22px;
+  box-shadow: 0 20px 40px rgba(65, 42, 22, 0.08);
+  display: grid;
+  gap: 14px;
+}
+
+.share-badge {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--panel-alt);
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.share-badge strong {
+  display: block;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.share-note,
+.participant-ranking {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 22px;
+  background: linear-gradient(90deg, #0a66c2, #0073b1);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 18px 36px rgba(10, 102, 194, 0.24);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.share-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 44px rgba(10, 102, 194, 0.28);
+}
+
+.linkedin-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #fff;
+  color: #0a66c2;
+  font-weight: 900;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.share-notice {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(143, 101, 64, 0.16);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.share-notice.hidden {
+  display: none;
+}
+
+.share-notice.error {
+  border-color: rgba(168, 79, 79, 0.16);
+  background: rgba(255, 237, 237, 0.92);
+  color: #a84f4f;
+}
+
+@media (max-width: 780px) {
+  .share-top {
+    grid-template-columns: 1fr;
+  }
+}
+
 .insights-list {
   display: grid;
   gap: 10px;
@@ -349,6 +466,122 @@ h1 {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.landing-page {
+  min-height: calc(100vh - 92px);
+  display: grid;
+  place-items: center;
+  padding: 40px 24px 32px;
+}
+
+.landing-panel {
+  width: min(100%, 980px);
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(143, 101, 64, 0.14);
+  border-radius: 30px;
+  padding: 40px 40px 36px;
+  box-shadow: 0 30px 80px rgba(65, 42, 22, 0.08);
+}
+
+.landing-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.landing-intro {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 32px;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.landing-steps {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.step-card {
+  background: var(--panel);
+  border: 1px solid rgba(143, 101, 64, 0.12);
+  border-radius: 22px;
+  padding: 24px;
+  color: var(--text);
+  box-shadow: 0 20px 40px rgba(65, 42, 22, 0.06);
+}
+
+.disclaimer-panel {
+  margin-bottom: 28px;
+  background: #fff7ee;
+  border: 1px solid rgba(143, 101, 64, 0.18);
+  border-radius: 24px;
+  padding: 24px 26px;
+  color: var(--text);
+}
+
+.disclaimer-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--accent);
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.disclaimer-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(143, 101, 64, 0.12);
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+.disclaimer-body {
+  display: grid;
+  gap: 12px;
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.disclaimer-body strong {
+  color: var(--text);
+}
+
+.step-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(143, 101, 64, 0.12);
+  color: var(--accent);
+  font-weight: 900;
+  margin-bottom: 16px;
+}
+
+.step-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.02rem;
+}
+
+.step-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.hidden {
+  display: none;
 }
 
 table {
@@ -487,6 +720,73 @@ th {
   margin-bottom: 24px;
   font-size: 1rem;
   line-height: 1.6;
+}
+
+
+.transition-message {
+  color: var(--muted);
+  margin-bottom: 24px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.transition-scene {
+  position: relative;
+  margin: 0 auto 24px;
+  width: 100%;
+  max-width: 520px;
+  height: 100px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.positive-year .transition-scene {
+  background: radial-gradient(circle at 80% 40%, rgba(52, 211, 153, 0.18), transparent 48%);
+}
+
+.negative-year .transition-scene {
+  background: radial-gradient(circle at 80% 40%, rgba(251, 113, 133, 0.18), transparent 48%);
+}
+
+.transition-scene::before,
+.transition-scene::after {
+  content: "";
+  position: absolute;
+  bottom: 18px;
+  width: 18%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  filter: blur(1px);
+}
+
+.transition-scene::before {
+  left: 14%;
+}
+
+.transition-scene::after {
+  right: 14%;
+}
+
+.transition-balance {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  transition: transform 0.25s ease, text-shadow 0.25s ease;
+}
+
+.transition-balance.upward {
+  color: var(--good);
+  text-shadow: 0 0 24px rgba(52, 211, 153, 0.3);
+  transform: translateY(-2px);
+}
+
+.transition-balance.downward {
+  color: var(--bad);
+  text-shadow: 0 0 24px rgba(251, 113, 133, 0.28);
+  transform: translateY(2px);
 }
 
 .transition-balance {
